@@ -15,12 +15,12 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // leading: null, //Container(),
         title: Center(
             child: Text(
           AppLocalizations.of(context).title,
           style: TextStyle(color: Colors.white),
         )),
-        // backgroundColor: Colors.cyan,
       ),
       endDrawer: MainMenu(),
       body: BlocListener<DevicesBloc, DevicesState>(
@@ -49,24 +49,31 @@ class MainPage extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(
                       left: 10,
-                      top: 10,
+                      top: 20,
                     ),
                     child: RaisedButton(
-                      elevation: 6,
                       onPressed: () {},
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      elevation: 6,
                       color: Colors.purple[200],
                       splashColor: Colors.amber,
-                      disabledColor: Colors.cyanAccent,
+                      disabledColor: Colors.purple[50],
                       child: Container(
-                        height: 40,
+                        height: 60,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '2я Черногрязская 6к4', //devicesState.currentDevice.getTitle()
+                              devicesState.currentDevice
+                                  .getTitle(), // '2я Черногрязская 6к4'
                               style: TextStyle(
+                                fontSize: 18,
                                 color: Colors.black,
                               ),
+                            ),
+                            SizedBox(
+                              height: 6,
                             ),
                             Text(
                               'нажмите чтобы открыть',

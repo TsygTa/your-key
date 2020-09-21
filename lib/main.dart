@@ -54,8 +54,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  MyApp(this._userRepository, {Key key, this.title}) : super(key: key);
-  final String title;
+  MyApp(this._userRepository, {Key key}) : super(key: key);
   final UserRepository _userRepository;
   @override
   _MyAppState createState() => _MyAppState();

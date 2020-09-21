@@ -36,14 +36,14 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
     String message = "";
     switch (event) {
       case BlockEvent.block:
-        message = AppLocalizations.of(_context).translate('block_engine_sent');
+        message = AppLocalizations.of(_context).translate('block_device_sent');
         await  _sendCommand(message);
         await Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
           add(BlockEvent.doneBlock);
         });
         break;
       case BlockEvent.unblock:
-        message = AppLocalizations.of(_context).translate('unblock_engine_sent');
+        message = AppLocalizations.of(_context).translate('unblock_device_sent');
         await  _sendCommand(message);
         await Future.delayed(Duration(seconds: engineBlockTimeoutSeconds),() {
           add(BlockEvent.doneUnblock);
@@ -64,8 +64,12 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
       if(response != null && response.status != null && response.status == true) {
         List<Device> list = [];
         list.add(_device);
-        _context.bloc<DevicesBloc>().add(GetStates(list));
-        AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_engine_title'),
+        for(int i = 0; i < 10; i++) {
+          Future.delayed(Duration(seconds: 10), () {
+            _context.bloc<DevicesBloc>().add(GetStates(list));
+          });
+        }
+        AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
             message).show();
       } else {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),

@@ -114,7 +114,7 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                     CheckboxListTile(
                         activeColor: Theme.of(context).appBarTheme.color,
-                        checkColor: Theme.of(context).primaryColor,
+                        checkColor: Colors.white,
                         title: Text(AppLocalizations.of(context).translate('remember_me')),
                         value: _isRememberMe,
                         onChanged: (bool value) {

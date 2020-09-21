@@ -5,11 +5,9 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset('assets/logo_triangles.png', height: 150, width: 150),
-          ],
+        child: Icon(
+          Icons.flag_outlined,
+          size: 150,
         ),
       ),
     );

@@ -11,63 +11,105 @@ import 'loading_indicator.dart';
 import 'main_menu.dart';
 
 class MainPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).title),
+        title: Center(
+            child: Text(
+          AppLocalizations.of(context).title,
+          style: TextStyle(color: Colors.white),
+        )),
+        // backgroundColor: Colors.cyan,
       ),
       endDrawer: MainMenu(),
       body: BlocListener<DevicesBloc, DevicesState>(
         listener: (BuildContext context, DevicesState state) {
           if (state is Failure) {
-            AlertWindow(context, AlertType.notification,
-                AppLocalizations.of(context).translate('error'),
-                AppLocalizations.of(context).translate('${state.error}'),
-                heightDivider: 6).show();
+            AlertWindow(
+                    context,
+                    AlertType.notification,
+                    AppLocalizations.of(context).translate('error'),
+                    AppLocalizations.of(context).translate('${state.error}'),
+                    heightDivider: 6)
+                .show();
           }
         },
         child: BlocBuilder<DevicesBloc, DevicesState>(
             builder: (context, devicesState) {
-              if(devicesState is Loading) {
-                return LoadingIndicator();
-              }
-              if (devicesState is DevicesInitialized) {
-                return BlocProvider<DeviceBlockBloc>(
-                  create: (context) => DeviceBlockBloc(context, devicesState.currentDevice, NetworkService()),
-                  child: BlocBuilder<DeviceBlockBloc, DeviceBlockState>(
-                  builder: (context, deviceBlockState) {
-                    if(deviceBlockState == DeviceBlockState.processing) {
-                      return Center(
-                        child: IconButton(
-                          iconSize: 100,
-                          icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
-                              ? Icon(Icons.lock_outline, color: Colors.black12,)
-                              : Icon(Icons.lock_open, color: Colors.black12,),
-                          onPressed: null,
+          if (devicesState is Loading) {
+            return LoadingIndicator();
+          }
+          if (devicesState is DevicesInitialized) {
+            return BlocProvider<DeviceBlockBloc>(
+                create: (context) => DeviceBlockBloc(
+                    context, devicesState.currentDevice, NetworkService()),
+                child: BlocBuilder<DeviceBlockBloc, DeviceBlockState>(
+                    builder: (context, deviceBlockState) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      top: 10,
+                    ),
+                    child: RaisedButton(
+                      elevation: 6,
+                      onPressed: () {},
+                      color: Colors.purple[200],
+                      splashColor: Colors.amber,
+                      disabledColor: Colors.cyanAccent,
+                      child: Container(
+                        height: 40,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '2я Черногрязская 6к4', //devicesState.currentDevice.getTitle()
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'нажмите чтобы открыть',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    } else
-                    return Center(
-                        child: IconButton(
-                          iconSize: 100,
-                          icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
-                          ? Icon(Icons.lock_outline, color: Colors.red,)
-                          : Icon(Icons.lock_open, color: Colors.green,),
-                          onPressed: () {
-                            _blockDevice(context, devicesState.currentDevice.state.deviceBlockState);
-                          },
-                        ),
-                      );
-                    }
-                  )
-                );
-              }
-              return Center(child: Text(AppLocalizations.of(context).translate(
-                  "get_devices_error_message")),);
-            }
-        ),
+                      ), //devicesState.currentDevice.getTitle()
+                    ),
+                  );
+
+                  // if(deviceBlockState == DeviceBlockState.processing) {
+                  //   return Center(
+                  //     child: IconButton(
+                  //       iconSize: 100,
+                  //       icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
+                  //           ? Icon(Icons.lock_outline, color: Colors.black12,)
+                  //           : Icon(Icons.lock_open, color: Colors.black12,),
+                  //       onPressed: null,
+                  //     ),
+                  //   );
+                  // } else
+                  // return Center(
+                  //     child: IconButton(
+                  //       iconSize: 100,
+                  //       icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
+                  //       ? Icon(Icons.lock_outline, color: Colors.red,)
+                  //       : Icon(Icons.lock_open, color: Colors.green,),
+                  //       onPressed: () {
+                  //         _blockDevice(context, devicesState.currentDevice.state.deviceBlockState);
+                  //       },
+                  //     ),
+                  //   );
+                }));
+          }
+          return Center(
+            child: Text(AppLocalizations.of(context)
+                .translate("get_devices_error_message")),
+          );
+        }),
       ),
     );
   }
@@ -78,16 +120,15 @@ class MainPage extends StatelessWidget {
         : AppLocalizations.of(context).translate('unblock_device');
 
     AlertWindow alertWindow = AlertWindow(context, AlertType.confirmation,
-        AppLocalizations.of(context).translate('block_device_title'),
-        message,
+        AppLocalizations.of(context).translate('block_device_title'), message,
         okButtonTitle: AppLocalizations.of(context).translate('confirm'),
         onOkPressed: () {
-          if (deviceBlockState == DeviceBlockState.unblocked) {
-            context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
-          } else if (deviceBlockState == DeviceBlockState.blocked) {
-            context.bloc<DeviceBlockBloc>().add((BlockEvent.unblock));
-          }
-        });
+      if (deviceBlockState == DeviceBlockState.unblocked) {
+        context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
+      } else if (deviceBlockState == DeviceBlockState.blocked) {
+        context.bloc<DeviceBlockBloc>().add((BlockEvent.unblock));
+      }
+    });
 
     alertWindow.show();
   }

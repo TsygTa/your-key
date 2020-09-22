@@ -6,11 +6,14 @@ class SplashPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Spinner(
-                  icon: Icon(
-              Icons.vpn_key_rounded,
-              size: 150,
-              color: Colors.purpleAccent,
-            ),
+          duration: Duration(
+            milliseconds: 4000,
+          ),
+          icon: Icon(
+            Icons.vpn_key_rounded,
+            size: 150,
+            color: Colors.purpleAccent,
+          ),
         ),
       ),
     );
@@ -39,7 +42,7 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 4000),
+      duration: Duration(milliseconds: 2000),
     )..repeat();
     _child = widget.icon;
 

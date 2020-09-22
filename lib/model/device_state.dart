@@ -34,8 +34,8 @@ class DeviceState extends Equatable {
         csq: json["csq"] as int,
         satellites: json["sat"] as int,
         altitude: json["alt"] is double ? json["alt"] : (json["alt"] as int).toDouble(),
-        isBlock: json["blocking"] as bool,
-        paramO1: json["o1b"] as int
+        paramO1: json["o1b"] as int,
+        isBlock: (json["blocking"] as bool) != null ? (json["blocking"] as bool) : (json["o1b"] as int) == 1,
     );
 
     return state;

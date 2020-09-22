@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,7 +13,9 @@ import 'bloc/auth_bloc.dart';
 import 'bloc/devices_bloc.dart';
 import 'bloc/simple_bloc_observer.dart';
 import 'localizations/localizations.dart';
+import 'model/device_state.dart';
 import 'networking/network_service.dart';
+import 'networking/websocket_service.dart';
 
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -33,6 +37,7 @@ class NavigationService {
 }
 
 final NavigationService navigationService =  NavigationService();
+final StreamController<DeviceState> webSocketStreamController = StreamController<DeviceState>.broadcast();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,10 +84,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     print('state = $state');
     switch(state) {
       case AppLifecycleState.resumed:
+        WebSocketService(NetworkService(), webSocketStreamController).connect();
         break;
       case AppLifecycleState.inactive:
         break;
       case AppLifecycleState.paused:
+        WebSocketService(NetworkService(), webSocketStreamController).close();
         break;
       case AppLifecycleState.detached:
         break;
@@ -121,6 +128,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       builder: (context, state) {
         if (state is AuthenticationSuccess) {
           context.bloc<DevicesBloc>().add(Fetch());
+          WebSocketService(NetworkService(), webSocketStreamController).connect();
           return MainPage();
         }
         if (state is AuthenticationFailure) {

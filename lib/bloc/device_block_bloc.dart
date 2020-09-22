@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import "package:flutter/material.dart";
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/localizations/localizations.dart';
@@ -6,6 +8,8 @@ import 'package:your_key/model/device.dart';
 import 'package:your_key/model/device_state.dart';
 import 'package:your_key/networking/network_service.dart';
 import 'package:your_key/ui/alert_window.dart';
+
+import '../main.dart';
 
 /// Events
 
@@ -20,44 +24,63 @@ enum BlockEvent {
 
 class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
 
-  static const int engineBlockTimeoutSeconds = 15;
+  static const int engineBlockTimeoutSeconds = 30;
 
   final Device _device;
   final NetworkService _networkService;
   final BuildContext _context;
 
-  DeviceBlockBloc(this._context, this._device, this._networkService) : super(_device.state.deviceBlockState);
+  StreamSubscription _webSocketServiceSubscription;
+  bool isWaitForLock = false;
+
+  DeviceBlockBloc(this._context, this._device, this._networkService) : super(_device.state.deviceBlockState) {
+
+    _webSocketServiceSubscription?.cancel();
+
+    _webSocketServiceSubscription = webSocketStreamController.stream.listen((event) {
+      if(isWaitForLock && event.deviceId == _device.id && event.deviceBlockState == DeviceBlockState.blocked) {
+        isWaitForLock = false;
+        add(BlockEvent.doneBlock);
+      }
+    });
+
+  }
 
   @override
   Stream<DeviceBlockState> mapEventToState(BlockEvent event) async* {
-    yield DeviceBlockState.processing;
     String message = "";
     switch (event) {
       case BlockEvent.block:
+        yield DeviceBlockState.processing;
         message = AppLocalizations.of(_context).translate('block_device_sent');
         await  _sendCommand(message);
         await Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
-          add(BlockEvent.doneBlock);
+          if(isWaitForLock) {
+            isWaitForLock = false;
+            add(BlockEvent.doneBlock);
+          }
         });
         break;
       case BlockEvent.unblock:
-        message = AppLocalizations.of(_context).translate('unblock_device_sent');
-        await  _sendCommand(message);
-        await Future.delayed(Duration(seconds: engineBlockTimeoutSeconds),() {
-          add(BlockEvent.doneUnblock);
-        });
         break;
       case BlockEvent.doneBlock:
         yield DeviceBlockState.blocked;
         break;
       case BlockEvent.doneUnblock:
-        yield DeviceBlockState.unblocked;
         break;
     }
   }
 
+  @override
+  close() async {
+    _webSocketServiceSubscription?.cancel();
+    super.close();
+  }
+
+
   Future<void> _sendCommand(String message) async{
     try {
+      isWaitForLock = true;
       BlockDeviceResponse response = await _networkService.blockDeviceRequest(_device.id);
       if(response != null && response.status != null && response.status == true) {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),

@@ -17,7 +17,7 @@ class AlertWindow {
   OverlayEntry _overlayEntry;
 
   AlertWindow(this._context, this._type, this._title, this._message, {this.okButtonTitle = "OK",
-    this.onOkPressed, this.intervalSeconds = 5, this.heightDivider = 4}) {
+    this.onOkPressed, this.intervalSeconds = 3, this.heightDivider = 4}) {
     _overlayState = Overlay.of(_context);
     _overlayEntry = OverlayEntry(
         builder: (_context) {

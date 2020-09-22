@@ -7,8 +7,6 @@ import 'package:your_key/model/device_state.dart';
 import 'package:your_key/networking/network_service.dart';
 import 'package:your_key/ui/alert_window.dart';
 
-import 'devices_bloc.dart';
-
 /// Events
 
 enum BlockEvent {
@@ -62,15 +60,8 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
     try {
       BlockDeviceResponse response = await _networkService.blockDeviceRequest(_device.id);
       if(response != null && response.status != null && response.status == true) {
-        List<Device> list = [];
-        list.add(_device);
-        for(int i = 0; i < 10; i++) {
-          Future.delayed(Duration(seconds: 10), () {
-            _context.bloc<DevicesBloc>().add(GetStates(list));
-          });
-        }
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
-            message).show();
+            message, heightDivider: 9).show();
       } else {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
             response?.error ?? "").show();

@@ -43,13 +43,13 @@ class AppLocalizations {
       'password_enter_message': 'Please enter password',
       'No user id': 'Wrong login or password',
 // Info Panel
-      'block_device_title': 'Change in blocking status',
+      'block_device_title': 'Status',
       'block_engine': 'Confirm Lock',
       'unblock_engine': 'Confirm Unlock',
       'confirm': 'Confirm',
       'cancel': 'Cancel',
       'block_device_sent':
-          'Block command is sent. Wait for the command to complete.',
+          'Opening...',
       'unblock_device_sent':
           'Unlock command is sent. Wait for the command to complete.',
     },
@@ -84,13 +84,13 @@ class AppLocalizations {
       'password_enter_message': 'Введите пароль',
       'No user id': 'Неверный логин или пароль',
 // Info Panel
-      'block_device_title': 'Изменение статуса блокировки',
+      'block_device_title': 'Статус',
       'block_device': 'Подтвердите Блокировку',
       'unblock_device': 'Подтвердите Разблокировку',
       'confirm': 'Подтвердить',
       'cancel': 'Отменить',
       'block_device_sent':
-          'Команда на блокировку отправлена. Дождитесь завершения выполнения команды.',
+          'Открывается...',
       'unblock_device_sent':
           'Команда на разблокировку отправлена. Дождитесь завершения выполнения команды.',
     },

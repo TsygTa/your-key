@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/bloc/devices_bloc.dart';
 import 'package:your_key/localizations/localizations.dart';
+import 'package:your_key/model/device.dart';
 import 'package:your_key/model/device_state.dart';
 
 import '../bloc/device_block_bloc.dart';
@@ -46,70 +47,7 @@ class MainPage extends StatelessWidget {
                     context, devicesState.currentDevice, NetworkService()),
                 child: BlocBuilder<DeviceBlockBloc, DeviceBlockState>(
                     builder: (context, deviceBlockState) {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      top: 20,
-                    ),
-                    child: RaisedButton(
-                      onPressed: () {},
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      elevation: 6,
-                      color: Colors.purple[200],
-                      splashColor: Colors.amber,
-                      disabledColor: Colors.purple[50],
-                      child: Container(
-                        height: 60,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              devicesState.currentDevice
-                                  .getTitle(), // '2я Черногрязская 6к4'
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 6,
-                            ),
-                            Text(
-                              'нажмите чтобы открыть',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ), //devicesState.currentDevice.getTitle()
-                    ),
-                  );
-
-                  // if(deviceBlockState == DeviceBlockState.processing) {
-                  //   return Center(
-                  //     child: IconButton(
-                  //       iconSize: 100,
-                  //       icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
-                  //           ? Icon(Icons.lock_outline, color: Colors.black12,)
-                  //           : Icon(Icons.lock_open, color: Colors.black12,),
-                  //       onPressed: null,
-                  //     ),
-                  //   );
-                  // } else
-                  // return Center(
-                  //     child: IconButton(
-                  //       iconSize: 100,
-                  //       icon: devicesState.currentDevice.state.deviceBlockState == DeviceBlockState.blocked
-                  //       ? Icon(Icons.lock_outline, color: Colors.red,)
-                  //       : Icon(Icons.lock_open, color: Colors.green,),
-                  //       onPressed: () {
-                  //         _blockDevice(context, devicesState.currentDevice.state.deviceBlockState);
-                  //       },
-                  //     ),
-                  //   );
+                  return _buildButton(context, devicesState.currentDevice);
                 }));
           }
           return Center(
@@ -121,22 +59,62 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  void _blockDevice(BuildContext context, DeviceBlockState deviceBlockState) {
-    String message = deviceBlockState == DeviceBlockState.unblocked
-        ? AppLocalizations.of(context).translate('block_device')
-        : AppLocalizations.of(context).translate('unblock_device');
+  Widget _buildButton(BuildContext context, Device device) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 10,
+        top: 20,
+      ),
+      child: RaisedButton(
+        onPressed: () {
+          _blockDevice(context);
+        },
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10)),
+        elevation: 6,
+        color: Colors.purple[200],
+        splashColor: Colors.amber,
+        disabledColor: Colors.purple[50],
+        child: Container(
+          height: 60,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                device.getTitle(),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(
+                height: 6,
+              ),
+              Text(
+                'нажмите чтобы открыть',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ), //devicesState.currentDevice.getTitle()
+      ),
+    );
+  }
 
-    AlertWindow alertWindow = AlertWindow(context, AlertType.confirmation,
-        AppLocalizations.of(context).translate('block_device_title'), message,
-        okButtonTitle: AppLocalizations.of(context).translate('confirm'),
-        onOkPressed: () {
-      if (deviceBlockState == DeviceBlockState.unblocked) {
-        context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
-      } else if (deviceBlockState == DeviceBlockState.blocked) {
-        context.bloc<DeviceBlockBloc>().add((BlockEvent.unblock));
-      }
-    });
+  void _blockDevice(BuildContext context) {
 
-    alertWindow.show();
+    context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
+
+    // String message = AppLocalizations.of(context).translate('block_device');
+    // AlertWindow alertWindow = AlertWindow(context, AlertType.confirmation,
+    //     AppLocalizations.of(context).translate('block_device_title'), message,
+    //     okButtonTitle: AppLocalizations.of(context).translate('confirm'),
+    //     onOkPressed: () {
+    //       context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
+    // });
+    // alertWindow.show();
   }
 }

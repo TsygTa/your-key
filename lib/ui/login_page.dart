@@ -7,7 +7,6 @@ import 'package:your_key/repository/user_repository.dart';
 
 import 'alert_window.dart';
 
-
 class LoginPage extends StatelessWidget {
   final UserRepository userRepository;
 
@@ -18,21 +17,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.fromLTRB(0,0,10,0),
-                  child: Image.asset('assets/logo_triangles.png', height: 40, width: 40)
-              ),
-              Text(AppLocalizations.of(context).title),
-            ],
-          )
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).title)),
       body: BlocProvider(
         create: (context) {
-          return LoginBloc(userRepository, BlocProvider.of<AuthenticationBloc>(context));
+          return LoginBloc(
+              userRepository, BlocProvider.of<AuthenticationBloc>(context));
         },
         child: LoginForm(),
       ),
@@ -62,14 +51,13 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-
     _onLoginButtonPressed() {
       if (_formKey.currentState.validate()) {
-        BlocProvider.of<LoginBloc>(context).add(
-            LoginButtonPressed(_usernameController.text, _passwordController.text,
-                _isRememberMe));
+        BlocProvider.of<LoginBloc>(context).add(LoginButtonPressed(
+            _usernameController.text, _passwordController.text, _isRememberMe));
       }
     }
+
     _onDemoButtonPressed() {
       BlocProvider.of<LoginBloc>(context).add(DemoButtonPressed());
     }
@@ -77,8 +65,13 @@ class _LoginFormState extends State<LoginForm> {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginFailure) {
-          AlertWindow(context, AlertType.notification, AppLocalizations.of(context).translate('failed_authenticate'),
-              AppLocalizations.of(context).translate('${state.error}'), heightDivider: 6).show();
+          AlertWindow(
+                  context,
+                  AlertType.notification,
+                  AppLocalizations.of(context).translate('failed_authenticate'),
+                  AppLocalizations.of(context).translate('${state.error}'),
+                  heightDivider: 6)
+              .show();
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(
@@ -92,22 +85,28 @@ class _LoginFormState extends State<LoginForm> {
                 child: Column(
                   children: [
                     TextFormField(
-                      decoration: InputDecoration(labelText: AppLocalizations.of(context).translate('login')),
+                      decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context).translate('login')),
                       controller: _usernameController,
                       validator: (value) {
                         if (value.isEmpty) {
-                          return AppLocalizations.of(context).translate('login_enter_message');
+                          return AppLocalizations.of(context)
+                              .translate('login_enter_message');
                         }
                         return null;
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: AppLocalizations.of(context).translate('password')),
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)
+                              .translate('password')),
                       controller: _passwordController,
                       obscureText: true,
                       validator: (value) {
                         if (value.isEmpty) {
-                          return AppLocalizations.of(context).translate('password_enter_message');
+                          return AppLocalizations.of(context)
+                              .translate('password_enter_message');
                         }
                         return null;
                       },
@@ -115,34 +114,40 @@ class _LoginFormState extends State<LoginForm> {
                     CheckboxListTile(
                         activeColor: Theme.of(context).appBarTheme.color,
                         checkColor: Colors.white,
-                        title: Text(AppLocalizations.of(context).translate('remember_me')),
+                        title: Text(AppLocalizations.of(context)
+                            .translate('remember_me')),
                         value: _isRememberMe,
                         onChanged: (bool value) {
                           setState(() {
                             _isRememberMe = value;
                           });
-                        }
-                    ),
-
+                        }),
                     Container(
                       margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget> [
+                          children: <Widget>[
                             RaisedButton(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0)),
                               color: Theme.of(context).appBarTheme.color,
                               textColor: Theme.of(context).primaryColor,
                               onPressed: state is! LoginInProgress
-                                  ? _onLoginButtonPressed : null,
-                              child: Text(AppLocalizations.of(context).translate('sign_in')),
+                                  ? _onLoginButtonPressed
+                                  : null,
+                              child: Text(AppLocalizations.of(context)
+                                  .translate('sign_in')),
                             ),
                             RaisedButton(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0)),
                               color: Theme.of(context).appBarTheme.color,
                               textColor: Theme.of(context).primaryColor,
-                              onPressed: state is! LoginInProgress ? _onDemoButtonPressed : null,
-                              child: Text(AppLocalizations.of(context).translate('demo')),
+                              onPressed: state is! LoginInProgress
+                                  ? _onDemoButtonPressed
+                                  : null,
+                              child: Text(AppLocalizations.of(context)
+                                  .translate('demo')),
                             ),
                           ]),
                     ),

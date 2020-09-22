@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart' show SynchronousFuture;
 import 'package:flutter/material.dart';
 
 class AppLocalizations {
-
   final Locale locale;
 
   AppLocalizations(this.locale);
@@ -19,8 +18,8 @@ class AppLocalizations {
       'get_observables_error_message': 'Server is not available',
       'no_observables_message': 'No data to display',
       'failed_get_device_state': 'State parsing error',
-      'failed_websocket_key':'WebSocket key response error',
-      'failed_websocket_auth':'WebSocket Authentication error',
+      'failed_websocket_key': 'WebSocket key response error',
+      'failed_websocket_auth': 'WebSocket Authentication error',
       'network_connection_failed': 'No internet connection',
       'failed_block_device': 'Lock command error',
       'loading': 'Loading...',
@@ -49,17 +48,19 @@ class AppLocalizations {
       'unblock_engine': 'Confirm Unlock',
       'confirm': 'Confirm',
       'cancel': 'Cancel',
-      'block_device_sent': 'Block command is sent. Wait for the command to complete.',
-      'unblock_device_sent': 'Unlock command is sent. Wait for the command to complete.',
+      'block_device_sent':
+          'Block command is sent. Wait for the command to complete.',
+      'unblock_device_sent':
+          'Unlock command is sent. Wait for the command to complete.',
     },
     'ru': {
-      'title': 'Твой Ключ',
+      'title': 'Ваш Ключ',
 // Errors
       'get_observables_error_message': 'Сервер не доступен',
       'no_observables_message': 'Нет данных для отображения',
       'failed_get_device_state': 'Ошибка разбора состояния',
-      'failed_websocket_key':'Ошибка запроса WebSocket key',
-      'failed_websocket_auth':'Ошибка авторизации WebSocket',
+      'failed_websocket_key': 'Ошибка запроса WebSocket key',
+      'failed_websocket_auth': 'Ошибка авторизации WebSocket',
       'network_connection_failed': 'Нет соединения с интернетом',
       'failed_block_device': 'Ошибка команды блокировки',
       'loading': 'Загрузка...',
@@ -88,13 +89,15 @@ class AppLocalizations {
       'unblock_device': 'Подтвердите Разблокировку',
       'confirm': 'Подтвердить',
       'cancel': 'Отменить',
-      'block_device_sent': 'Команда на блокировку отправлена. Дождитесь завершения выполнения команды.',
-      'unblock_device_sent': 'Команда на разблокировку отправлена. Дождитесь завершения выполнения команды.',
+      'block_device_sent':
+          'Команда на блокировку отправлена. Дождитесь завершения выполнения команды.',
+      'unblock_device_sent':
+          'Команда на разблокировку отправлена. Дождитесь завершения выполнения команды.',
     },
   };
 
   String translate(String string) {
-    if(_localizedValues[locale.languageCode][string] == null) {
+    if (_localizedValues[locale.languageCode][string] == null) {
       return string;
     } else {
       return _localizedValues[locale.languageCode][string];
@@ -102,7 +105,7 @@ class AppLocalizations {
   }
 
   String translateWithColon(String string) {
-    if(_localizedValues[locale.languageCode][string] == null) {
+    if (_localizedValues[locale.languageCode][string] == null) {
       return string + ': ';
     } else {
       return _localizedValues[locale.languageCode][string] + ': ';
@@ -115,11 +118,10 @@ class AppLocalizations {
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
-
   const AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale)  => ['en', 'ru'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'ru'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) {

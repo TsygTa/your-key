@@ -6,8 +6,9 @@ class SplashPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Icon(
-          Icons.flag_outlined,
+          Icons.vpn_key_rounded,
           size: 150,
+          color: Colors.purpleAccent,
         ),
       ),
     );

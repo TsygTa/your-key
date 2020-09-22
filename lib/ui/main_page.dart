@@ -47,7 +47,11 @@ class MainPage extends StatelessWidget {
                     context, devicesState.currentDevice, NetworkService()),
                 child: BlocBuilder<DeviceBlockBloc, DeviceBlockState>(
                     builder: (context, deviceBlockState) {
-                  return _buildButton(context, devicesState.currentDevice);
+                      if(deviceBlockState == DeviceBlockState.processing) {
+                        return _buildButton(context, true, devicesState.currentDevice);
+                      } else {
+                        return _buildButton(context, false, devicesState.currentDevice);
+                      }
                 }));
           }
           return Center(
@@ -59,14 +63,14 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, Device device) {
+  Widget _buildButton(BuildContext context, bool isDisabled, Device device) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 10,
         top: 20,
       ),
       child: RaisedButton(
-        onPressed: () {
+        onPressed: isDisabled ? null : () {
           _blockDevice(context);
         },
         shape: RoundedRectangleBorder(

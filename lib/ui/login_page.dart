@@ -138,17 +138,17 @@ class _LoginFormState extends State<LoginForm> {
                               child: Text(AppLocalizations.of(context)
                                   .translate('sign_in')),
                             ),
-                            RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18.0)),
-                              color: Theme.of(context).appBarTheme.color,
-                              textColor: Theme.of(context).primaryColor,
-                              onPressed: state is! LoginInProgress
-                                  ? _onDemoButtonPressed
-                                  : null,
-                              child: Text(AppLocalizations.of(context)
-                                  .translate('demo')),
-                            ),
+                            // RaisedButton(
+                            //   shape: RoundedRectangleBorder(
+                            //       borderRadius: BorderRadius.circular(18.0)),
+                            //   color: Theme.of(context).appBarTheme.color,
+                            //   textColor: Theme.of(context).primaryColor,
+                            //   onPressed: state is! LoginInProgress
+                            //       ? _onDemoButtonPressed
+                            //       : null,
+                            //   child: Text(AppLocalizations.of(context)
+                            //       .translate('demo')),
+                            // ),
                           ]),
                     ),
                     Container(

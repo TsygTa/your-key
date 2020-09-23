@@ -88,7 +88,7 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
       BlockDeviceResponse response = await _networkService.blockDeviceRequest(_device.id);
       if(response != null && response.status != null && response.status == true) {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
-            message, heightDivider: 9).show();
+            message, heightDivider: 6).show();
       } else {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
             response?.error ?? "").show();

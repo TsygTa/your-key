@@ -64,6 +64,7 @@ class MainPage extends StatelessWidget {
   }
 
   Widget _buildButton(BuildContext context, bool isDisabled, Device device) {
+    print("_buildButton isDisabled: $isDisabled");
     return Padding(
       padding: const EdgeInsets.only(
         left: 10,

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatelessWidget {
+  final double size;
+
+  SplashPage({
+    this.size = 150,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +17,7 @@ class SplashPage extends StatelessWidget {
           ),
           icon: Icon(
             Icons.vpn_key_rounded,
-            size: 150,
+            size: size,
             color: Colors.purpleAccent,
           ),
         ),

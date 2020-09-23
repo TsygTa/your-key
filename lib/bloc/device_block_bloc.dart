@@ -40,6 +40,7 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
     _webSocketServiceSubscription = webSocketStreamController.stream.listen((event) {
       if(isWaitForLock && event.deviceId == _device.id && event.deviceBlockState == DeviceBlockState.blocked) {
         isWaitForLock = false;
+        print('WS BlockEvent.doneBlock');
         add(BlockEvent.doneBlock);
       }
     });
@@ -54,8 +55,10 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
         yield DeviceBlockState.processing;
         message = AppLocalizations.of(_context).translate('block_device_sent');
         await  _sendCommand(message);
-        await Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
+        Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
+          print('Timeout1');
           if(isWaitForLock) {
+            print('Timeout2 BlockEvent.doneBlock');
             isWaitForLock = false;
             add(BlockEvent.doneBlock);
           }
@@ -64,6 +67,7 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
       case BlockEvent.unblock:
         break;
       case BlockEvent.doneBlock:
+        print('Bloc: DeviceBlockState.blocked');
         yield DeviceBlockState.blocked;
         break;
       case BlockEvent.doneUnblock:

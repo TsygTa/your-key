@@ -42,7 +42,7 @@ class AlertWindow {
               ],
             ),
             width: MediaQuery.of(_context).size.width / 7 * 6,
-            height: 120, //MediaQuery.of(_context).size.height / heightDivider,
+            height: MediaQuery.of(_context).size.height / heightDivider,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(

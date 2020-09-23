@@ -19,7 +19,7 @@ class MainMenu extends StatelessWidget {
                         return IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            context.bloc<MainMenuBloc>().add(MainMenuEvent.mainpage);
+                            //context.bloc<MainMenuBloc>().add(MainMenuEvent.mainpage);
                             Navigator.pop(context);
                           },
                         );

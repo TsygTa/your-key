@@ -70,7 +70,7 @@ class _LoginFormState extends State<LoginForm> {
                   AlertType.notification,
                   AppLocalizations.of(context).translate('failed_authenticate'),
                   AppLocalizations.of(context).translate('${state.error}'),
-                  heightDivider: 6)
+                  heightDivider: 4)
               .show();
         }
       },

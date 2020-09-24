@@ -32,7 +32,7 @@ class MainPage extends StatelessWidget {
                     AlertType.notification,
                     AppLocalizations.of(context).translate('error'),
                     AppLocalizations.of(context).translate('${state.error}'),
-                    heightDivider: 6)
+                    heightDivider: 4)
                 .show();
           }
         },

@@ -54,15 +54,21 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
       case BlockEvent.block:
         yield DeviceBlockState.processing;
         message = AppLocalizations.of(_context).translate('block_device_sent');
-        await  _sendCommand(message);
-        Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
-          print('Timeout1');
-          if(isWaitForLock) {
-            print('Timeout2 BlockEvent.doneBlock');
-            isWaitForLock = false;
-            add(BlockEvent.doneBlock);
-          }
-        });
+        bool status = await  _sendCommand(message);
+        if(status) {
+          Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
+            print('Timeout1');
+            if(isWaitForLock) {
+              print('Timeout2 BlockEvent.doneBlock');
+              isWaitForLock = false;
+              add(BlockEvent.doneBlock);
+              AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+                  AppLocalizations.of(_context).translate("possibly_command_not_sent")).show();
+            }
+          });
+        } else {
+          yield DeviceBlockState.failure;
+        }
         break;
       case BlockEvent.unblock:
         break;
@@ -82,20 +88,22 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
   }
 
 
-  Future<void> _sendCommand(String message) async{
+  Future<bool> _sendCommand(String message) async{
     try {
       isWaitForLock = true;
       BlockDeviceResponse response = await _networkService.blockDeviceRequest(_device.id);
       if(response != null && response.status != null && response.status == true) {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
             message, heightDivider: 6).show();
+        return true;
       } else {
         AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
-            response?.error ?? "").show();
+            (response?.error ?? "") + " " + AppLocalizations.of(_context).translate("command_not_sent")).show();
       }
     } catch(error) {
       AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
-          error.toString() ?? "").show();
+          (error.toString() ?? "") + " " + AppLocalizations.of(_context).translate("command_not_sent")).show();
     }
+    return false;
   }
 }

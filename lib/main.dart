@@ -61,6 +61,7 @@ void main() {
 class MyApp extends StatefulWidget {
   MyApp(this._userRepository, {Key key}) : super(key: key);
   final UserRepository _userRepository;
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -84,6 +85,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     print('state = $state');
     switch(state) {
       case AppLifecycleState.resumed:
+        context.bloc<DevicesBloc>().add(Fetch());
         WebSocketService(NetworkService(), webSocketStreamController).connect();
         break;
       case AppLifecycleState.inactive:

@@ -5,7 +5,8 @@ enum DeviceBlockState {
   blocked,
   unblocked,
   processing,
-  not_available
+  not_available,
+  failure
 }
 
 class DeviceState extends Equatable {

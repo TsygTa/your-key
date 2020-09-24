@@ -24,6 +24,8 @@ class AppLocalizations {
       'failed_block_device': 'Lock command error',
       'loading': 'Loading...',
       'error': 'Error',
+      'command_not_sent': 'Command is not sent',
+      'possibly_command_not_sent': 'The command may not have been sent. Repeat the action.',
 // Menu
       'menu': 'Menu',
       'observables': 'Observable objects',
@@ -65,6 +67,8 @@ class AppLocalizations {
       'failed_block_device': 'Ошибка команды блокировки',
       'loading': 'Загрузка...',
       'error': 'Ошибка',
+      'command_not_sent': 'Команда не отправлена',
+      'possibly_command_not_sent': 'Возможно команда не отправлена. Повторите действие.',
 // Menu
       'menu': 'Меню',
       'observables': 'Объекты наблюдения',

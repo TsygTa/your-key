@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/localizations/localizations.dart';
 import 'package:your_key/model/device_state.dart';
 import 'package:your_key/model/websocketRCV_message.dart';
+import 'package:your_key/networking/http_client.dart';
 import 'package:your_key/networking/websocketRCV_service.dart';
 import 'package:your_key/ui/alert_window.dart';
 
@@ -37,8 +38,7 @@ class WebSocketConnected extends BlockEvent {
   List<Object> get props => [];
 
   @override
-  String toString() =>
-      'WebSocketConnected';
+  String toString() => 'WebSocketConnected';
 }
 
 class CommandSent extends BlockEvent {
@@ -131,12 +131,26 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
     if(event is LockPressed) {
       yield DeviceBlockState.processing;
       _deviceId = event.deviceId;
-      _webSocketRCVService.connect();
+      try {
+        _webSocketRCVService.connect();
+      } catch(error) {
+        _webSocketRCVService.close();
+        if(error is RequestTypeNotFoundException) {
+          AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+              AppLocalizations.of(_context).translate(error.cause)).show();
+          yield DeviceBlockState.failure;
+        } else {
+          AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+              (error.toString() ?? "") + " " + AppLocalizations.of(_context).translate("command_not_sent")).show();
+          yield DeviceBlockState.failure;
+        }
+      }
     }
 
     if(event is WebSocketConnected) {
       bool status = _sendWSCommand();
       if(!status) {
+        _webSocketRCVService.close();
         yield DeviceBlockState.failure;
       }
       yield DeviceBlockState.processing;

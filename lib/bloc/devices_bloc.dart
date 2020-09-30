@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/model/device.dart';
 import 'package:your_key/model/device_state_response.dart';
+import 'package:your_key/networking/http_client.dart';
 import 'package:your_key/networking/network_service.dart';
 import 'package:equatable/equatable.dart';
 
@@ -100,8 +101,11 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
         _devices.addAll(list);
         add(InitDevices());
       } catch (error) {
-        print(error);
-        yield Failure("network_connection_failed");
+        if(error is RequestTypeNotFoundException) {
+          yield Failure(error.cause);
+        } else {
+          yield Failure(error.toString() ?? "");
+        }
       }
     }
 

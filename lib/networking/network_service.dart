@@ -1,12 +1,9 @@
 import 'dart:io' show Cookie, Platform;
 import 'package:device_info/device_info.dart';
 import 'package:your_key/model/auth_response.dart';
-import 'package:your_key/model/block_device_response.dart';
 import 'package:your_key/model/device_state_response.dart';
 import 'package:your_key/model/devices_response.dart';
 import 'package:your_key/model/user.dart';
-import 'package:your_key/model/websocket_auth_response.dart';
-import 'package:your_key/model/websocket_key_response.dart';
 import 'package:your_key/networking/http_client.dart';
 
 class NetworkService {
@@ -33,8 +30,6 @@ class NetworkService {
   static const String getOservableStateMethod = "/get_state";
 
   Cookie _cookie;
-  int _userId;
-  String _webSocketKey;
   User user;
 
   /// Authentication request
@@ -71,7 +66,6 @@ class NetworkService {
 
       AuthResponse authResponse = AuthResponse.fromRawJson(response.body);
       if(authResponse.user != null) {
-        this._userId = authResponse.user.userId;
         this.user = User(authResponse.user.userId, login: login, password: password);
       }
       return authResponse;
@@ -113,72 +107,6 @@ class NetworkService {
         return DeviceStateResponse.fromRawJson(response.body);
       default:
         throw Exception('failed_get_device_state');
-    }
-  }
-
-  /// Block Request
-  Future<BlockDeviceResponse> blockDeviceRequest(int deviceId) async {
-
-    Map<String, String> params = {
-      "device": deviceId.toString()
-    };
-
-    Map<String, String> headers = {"Content-Type": "application/json"};
-    headers.addAll({"Cookie": _cookie.toString()});
-
-    final response = await _httpClient.request(RequestType.GET, apiKGK, blockEngineMethod, headers, parameter: params);
-    switch(response.statusCode) {
-      case 200:
-        return BlockDeviceResponse.fromRawJson(response.body);
-      default:
-        throw Exception('failed_block_device');
-    }
-  }
-
-  /// WebSocket Key Request
-  Future<WebSocketKeyResponse> getWebSocketKeyRequest() async {
-
-    Map<String, String> params = {
-      "ws2": "1"
-    };
-
-    Map<String, String> headers = {"Content-Type": "application/json"};
-    headers.addAll({"Cookie": _cookie.toString()});
-
-    final response = await _httpClient.request(RequestType.GET, apiKGK, getWebSocketKeyMethod, headers, parameter: params);
-    if (response.statusCode == 200) {
-      WebSocketKeyResponse keyResponse = WebSocketKeyResponse.fromRawJson(response.body);
-      _webSocketKey = keyResponse.webSocketKey;
-      return WebSocketKeyResponse.fromRawJson(response.body);
-    } else {
-      throw Exception('failed_websocket_key');
-    }
-  }
-
-  /// WebSocket Auth Request
-  Future<WebSocketAuthResponse> webSocketAuthRequest() async {
-
-    Map<String, Object> params = {
-      "type": "new_client",
-      "data": {
-        "user_id": _userId,
-        "key": _webSocketKey
-      }
-    };
-
-    Map<String, String> headers = {
-      "Content-Type": "application/json",
-      "Accept": "*/*",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-      "cache-control": "no-cache"
-    };
-
-    final response = await _httpClient.request(RequestType.POST, rcv2Api, getWebSocketAuthMethod, headers, parameter: params);
-    if (response.statusCode == 200) {
-      return WebSocketAuthResponse.fromRawJson(response.body);
-    } else {
-      throw Exception('failed_websocket_auth');
     }
   }
 }

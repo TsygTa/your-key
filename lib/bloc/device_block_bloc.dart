@@ -176,6 +176,14 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
         isWaitForLock = false;
         print('Bloc: DeviceBlockState.blocked');
         _webSocketRCVService.close();
+        if(event.data == null) {
+          AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+              AppLocalizations.of(_context).translate("possibly_command_not_sent")).show();
+        } else {
+          AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
+              AppLocalizations.of(_context).translate("block_device_sent_done"),
+          heightDivider: 6, isSpinner: false).show();
+        }
         yield DeviceBlockState.blocked;
     }
 

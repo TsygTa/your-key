@@ -52,6 +52,7 @@ class AppLocalizations {
       'cancel': 'Cancel',
       'block_device_sent':
           'Opening...',
+      'block_device_sent_done': 'Open',
       'unblock_device_sent':
           'Unlock command is sent. Wait for the command to complete.',
     },
@@ -95,6 +96,7 @@ class AppLocalizations {
       'cancel': 'Отменить',
       'block_device_sent':
           'Открывается...',
+      'block_device_sent_done': 'Открыто',
       'unblock_device_sent':
           'Команда на разблокировку отправлена. Дождитесь завершения выполнения команды.',
     },

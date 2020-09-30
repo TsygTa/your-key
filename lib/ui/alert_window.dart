@@ -14,6 +14,7 @@ class AlertWindow {
   final Function onOkPressed;
   final int intervalSeconds;
   final int heightDivider;
+  final bool isSpinner;
 
   OverlayState _overlayState;
   OverlayEntry _overlayEntry;
@@ -22,7 +23,8 @@ class AlertWindow {
       {this.okButtonTitle = "OK",
       this.onOkPressed,
       this.intervalSeconds = 3,
-      this.heightDivider = 4}) {
+      this.heightDivider = 4,
+      this.isSpinner = true}) {
     _overlayState = Overlay.of(_context);
     _overlayEntry = OverlayEntry(builder: (_context) {
       return Material(
@@ -71,7 +73,7 @@ class AlertWindow {
                     overflow: TextOverflow.ellipsis,
                   ),
                   _type == AlertType.notification
-                      ? Container(
+                      ? (isSpinner ? Container(
                           child: Spinner(
                             duration: Duration(
                               milliseconds: 4000,
@@ -82,7 +84,7 @@ class AlertWindow {
                               color: Colors.purpleAccent,
                             ),
                           ),
-                        )
+                        ) : Container())
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.center,

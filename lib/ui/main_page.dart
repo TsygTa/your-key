@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/bloc/devices_bloc.dart';
 import 'package:your_key/localizations/localizations.dart';
+import 'package:your_key/main.dart';
 import 'package:your_key/model/device.dart';
 import 'package:your_key/model/device_state.dart';
 
 import '../bloc/device_block_bloc.dart';
-import '../networking/network_service.dart';
 import 'alert_window.dart';
 import 'loading_indicator.dart';
 import 'main_menu.dart';
@@ -44,7 +44,7 @@ class MainPage extends StatelessWidget {
           if (devicesState is DevicesInitialized) {
             return BlocProvider<DeviceBlockBloc>(
                 create: (context) => DeviceBlockBloc(
-                    context, devicesState.currentDevice, NetworkService()),
+                    context, webSocketService),
                 child: BlocBuilder<DeviceBlockBloc, DeviceBlockState>(
                     builder: (context, deviceBlockState) {
                       if(deviceBlockState == DeviceBlockState.processing) {
@@ -72,7 +72,7 @@ class MainPage extends StatelessWidget {
       ),
       child: RaisedButton(
         onPressed: isDisabled ? null : () {
-          _blockDevice(context);
+          _blockDevice(context, device);
         },
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10)),
@@ -109,17 +109,8 @@ class MainPage extends StatelessWidget {
     );
   }
 
-  void _blockDevice(BuildContext context) {
+  void _blockDevice(BuildContext context, Device device) {
 
-    context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
-
-    // String message = AppLocalizations.of(context).translate('block_device');
-    // AlertWindow alertWindow = AlertWindow(context, AlertType.confirmation,
-    //     AppLocalizations.of(context).translate('block_device_title'), message,
-    //     okButtonTitle: AppLocalizations.of(context).translate('confirm'),
-    //     onOkPressed: () {
-    //       context.bloc<DeviceBlockBloc>().add((BlockEvent.block));
-    // });
-    // alertWindow.show();
+    context.bloc<DeviceBlockBloc>().add((LockPressed(device.id)));
   }
 }

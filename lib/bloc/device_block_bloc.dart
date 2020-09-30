@@ -1,24 +1,87 @@
 import 'dart:async';
 
 import "package:flutter/material.dart";
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_key/localizations/localizations.dart';
-import 'package:your_key/model/block_device_response.dart';
-import 'package:your_key/model/device.dart';
 import 'package:your_key/model/device_state.dart';
-import 'package:your_key/networking/network_service.dart';
+import 'package:your_key/model/websocketRCV_message.dart';
+import 'package:your_key/networking/websocketRCV_service.dart';
 import 'package:your_key/ui/alert_window.dart';
 
 import '../main.dart';
 
 /// Events
 
-enum BlockEvent {
-  block,
-  unblock,
-  doneBlock,
-  doneUnblock
+//Login Events
+abstract class BlockEvent extends Equatable {
+  const BlockEvent();
 }
+
+class LockPressed extends BlockEvent {
+  final int deviceId;
+
+  const LockPressed(this.deviceId);
+
+  @override
+  List<Object> get props => [deviceId];
+
+  @override
+  String toString() =>
+      'LockPressed { device: $deviceId }';
+}
+
+class WebSocketConnected extends BlockEvent {
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+
+  @override
+  String toString() =>
+      'WebSocketConnected';
+}
+
+class CommandSent extends BlockEvent {
+  final int deviceId;
+  final int commandId;
+
+  const CommandSent(this.deviceId, this.commandId);
+
+  @override
+  List<Object> get props => [deviceId, commandId];
+
+  @override
+  String toString() =>
+      'CommandSent { device: $deviceId, command: $commandId }';
+}
+
+class CommandDone extends BlockEvent {
+  final int deviceId;
+  final int commandId;
+  final String data;
+  const CommandDone(this.deviceId, this.commandId, this.data);
+
+  @override
+  List<Object> get props => [deviceId, commandId, data];
+
+  @override
+  String toString() =>
+      'CommandDone { device: $deviceId, command: $commandId, data: $data }';
+}
+
+class FailureLock extends BlockEvent {
+  final String error;
+
+  const FailureLock(this.error);
+
+  @override
+  List<Object> get props => [error];
+
+  @override
+  String toString() =>
+      'Failure { error: $error}';
+}
+
 
 /// Engine Block Bloc
 
@@ -26,80 +89,103 @@ class DeviceBlockBloc extends Bloc<BlockEvent, DeviceBlockState> {
 
   static const int engineBlockTimeoutSeconds = 30;
 
-  final Device _device;
-  final NetworkService _networkService;
+  final WebSocketRCVService _webSocketRCVService;
   final BuildContext _context;
 
   StreamSubscription _webSocketServiceSubscription;
   bool isWaitForLock = false;
+  int _deviceId;
+  int _commandId;
 
-  DeviceBlockBloc(this._context, this._device, this._networkService) : super(_device.state.deviceBlockState) {
+  DeviceBlockBloc(this._context, this._webSocketRCVService) : super(DeviceBlockState.initial) {
 
     _webSocketServiceSubscription?.cancel();
 
-    _webSocketServiceSubscription = webSocketStreamController.stream.listen((event) {
-      if(isWaitForLock && event.deviceId == _device.id && event.deviceBlockState == DeviceBlockState.blocked) {
-        isWaitForLock = false;
-        print('WS BlockEvent.doneBlock');
-        add(BlockEvent.doneBlock);
+    _webSocketServiceSubscription = webSocketStreamController.stream.listen((message) {
+      switch(message.messageType) {
+        case WSState.connected:
+          add(WebSocketConnected());
+          break;
+        case WSState.commandIsSent:
+          if(message.deviceId == _deviceId) {
+            _commandId = message.commandId;
+            add(CommandSent(message.deviceId, message.commandId));
+          }
+          break;
+        case WSState.commandIsDone:
+          if(isWaitForLock && message.deviceId == _deviceId && message.commandId == _commandId) {
+            print('WS BlockEvent.doneBlock');
+            add(CommandDone(message.deviceId, message.commandId, message.data));
+          }
+          break;
+        case WSState.sendCommandError:
+          add(FailureLock(message.error));
+          break;
       }
     });
-
   }
 
   @override
   Stream<DeviceBlockState> mapEventToState(BlockEvent event) async* {
-    String message = "";
-    switch (event) {
-      case BlockEvent.block:
-        yield DeviceBlockState.processing;
-        message = AppLocalizations.of(_context).translate('block_device_sent');
-        bool status = await  _sendCommand(message);
-        if(status) {
-          Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
-            print('Timeout1');
-            if(isWaitForLock) {
-              print('Timeout2 BlockEvent.doneBlock');
-              isWaitForLock = false;
-              add(BlockEvent.doneBlock);
-              AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
-                  AppLocalizations.of(_context).translate("possibly_command_not_sent")).show();
-            }
-          });
-        } else {
-          yield DeviceBlockState.failure;
+
+    if(event is LockPressed) {
+      yield DeviceBlockState.processing;
+      _deviceId = event.deviceId;
+      _webSocketRCVService.connect();
+    }
+
+    if(event is WebSocketConnected) {
+      bool status = _sendWSCommand();
+      if(!status) {
+        yield DeviceBlockState.failure;
+      }
+      yield DeviceBlockState.processing;
+    }
+
+    if(event is CommandSent) {
+      yield DeviceBlockState.processing;
+
+      AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
+          AppLocalizations.of(_context).translate('block_device_sent'), heightDivider: 6).show();
+      Future.delayed(Duration(seconds: engineBlockTimeoutSeconds), () {
+        print('Timeout1');
+        if(isWaitForLock) {
+          print('Timeout2 BlockEvent.doneBlock');
+          add(CommandDone(event.deviceId, event.commandId, null));
+          AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+              AppLocalizations.of(_context).translate("possibly_command_not_sent")).show();
         }
-        break;
-      case BlockEvent.unblock:
-        break;
-      case BlockEvent.doneBlock:
+      });
+    }
+
+    if(event is CommandDone) {
+        isWaitForLock = false;
         print('Bloc: DeviceBlockState.blocked');
+        _webSocketRCVService.close();
         yield DeviceBlockState.blocked;
-        break;
-      case BlockEvent.doneUnblock:
-        break;
+    }
+
+    if(event is FailureLock) {
+      _webSocketRCVService.close();
+      isWaitForLock = false;
+      AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
+          AppLocalizations.of(_context).translate("command_not_sent") + ': ' +  AppLocalizations.of(_context).translate(event.error)).show();
+      yield DeviceBlockState.blocked;
     }
   }
 
   @override
   close() async {
     _webSocketServiceSubscription?.cancel();
+    _webSocketRCVService.close();
     super.close();
   }
 
-
-  Future<bool> _sendCommand(String message) async{
+  bool _sendWSCommand() {
     try {
       isWaitForLock = true;
-      BlockDeviceResponse response = await _networkService.blockDeviceRequest(_device.id);
-      if(response != null && response.status != null && response.status == true) {
-        AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('block_device_title'),
-            message, heightDivider: 6).show();
-        return true;
-      } else {
-        AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
-            (response?.error ?? "") + " " + AppLocalizations.of(_context).translate("command_not_sent")).show();
-      }
+      webSocketService.sendCommand(_deviceId);
+      return true;
     } catch(error) {
       AlertWindow(_context, AlertType.notification, AppLocalizations.of(_context).translate('error'),
           (error.toString() ?? "") + " " + AppLocalizations.of(_context).translate("command_not_sent")).show();

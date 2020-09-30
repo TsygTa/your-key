@@ -4,6 +4,7 @@ import 'package:your_key/model/auth_response.dart';
 import 'package:your_key/model/block_device_response.dart';
 import 'package:your_key/model/device_state_response.dart';
 import 'package:your_key/model/devices_response.dart';
+import 'package:your_key/model/user.dart';
 import 'package:your_key/model/websocket_auth_response.dart';
 import 'package:your_key/model/websocket_key_response.dart';
 import 'package:your_key/networking/http_client.dart';
@@ -34,6 +35,7 @@ class NetworkService {
   Cookie _cookie;
   int _userId;
   String _webSocketKey;
+  User user;
 
   /// Authentication request
 
@@ -70,6 +72,7 @@ class NetworkService {
       AuthResponse authResponse = AuthResponse.fromRawJson(response.body);
       if(authResponse.user != null) {
         this._userId = authResponse.user.userId;
+        this.user = User(authResponse.user.userId, login: login, password: password);
       }
       return authResponse;
     } else {

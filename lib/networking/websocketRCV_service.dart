@@ -6,6 +6,8 @@ import 'package:your_key/model/websocketRCV_message.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'http_client.dart';
+import 'network_check.dart';
 import 'network_service.dart';
 
 class WebSocketRCVService {
@@ -24,6 +26,7 @@ class WebSocketRCVService {
     return _instance;
   }
 
+  final NetworkCheck _networkCheck = NetworkCheck();
 
   WebSocketChannel _channel;
   StreamSubscription _webSocketSubscription;
@@ -52,6 +55,10 @@ class WebSocketRCVService {
 
   Future<void> _tryToConnect() async {
 
+    bool isInternet = await _networkCheck.check();
+    if(!isInternet) {
+      return throw RequestTypeNotFoundException("network_connection_failed");
+    }
     User user = _networkService.user;
 
     try {

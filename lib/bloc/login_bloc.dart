@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:your_key/networking/http_client.dart';
 import 'package:your_key/repository/user_repository.dart';
 
 import 'auth_bloc.dart';
@@ -83,8 +84,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           yield LoginFailure(response.error.toString());
         }
       } catch (error) {
-        print(error.toString());
-        yield LoginFailure("network_connection_failed");
+        if(error is RequestTypeNotFoundException) {
+          yield LoginFailure(error.cause);
+        } else {
+          yield LoginFailure(error.toString() ?? "");
+        }
       }
     }
 
@@ -101,8 +105,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           yield LoginFailure(response.error.toString());
         }
       } catch (error) {
-        print(error.toString());
-        yield LoginFailure("network_connection_failed");
+        if(error is RequestTypeNotFoundException) {
+          yield LoginFailure(error.cause);
+        } else {
+          yield LoginFailure(error.toString() ?? "");
+        }
       }
     }
   }
